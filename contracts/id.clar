@@ -177,3 +177,26 @@
 (define-read-only (is-endorsed-by (endorser principal) (endorsed principal))
   (is-some (map-get? endorsements {endorser: endorser, endorsed: endorsed}))
 )
+
+;; Function to remove an endorsement
+(define-public (remove-endorsement (target principal))
+  (let
+    (
+      (caller tx-sender)
+      (endorsement-key {endorser: caller, endorsed: target})
+    )
+    ;; Ensure the endorsement exists
+    (asserts! (is-some (map-get? endorsements endorsement-key)) (err "No existing endorsement"))
+    
+    ;; Remove the endorsement
+    (map-delete endorsements endorsement-key)
+    
+    ;; Decrement endorsement count
+    (map-set endorsement-counts 
+      target 
+      (- (default-to u0 (map-get? endorsement-counts target)) u1)
+    )
+    
+    (ok true)
+  )
+)
