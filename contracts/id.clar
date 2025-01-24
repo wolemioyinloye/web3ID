@@ -184,17 +184,25 @@
     (
       (caller tx-sender)
       (endorsement-key {endorser: caller, endorsed: target})
+      (current-endorsement (map-get? endorsements endorsement-key))
+      (current-count (default-to u0 (map-get? endorsement-counts target)))
     )
+    ;; Ensure the target identity exists
+    (asserts! (is-some (map-get? identities target)) ERR-PROFILE-NOT-FOUND)
+    
     ;; Ensure the endorsement exists
-    (asserts! (is-some (map-get? endorsements endorsement-key)) (err "No existing endorsement"))
+    (asserts! (is-some current-endorsement) (err "No existing endorsement"))
     
     ;; Remove the endorsement
     (map-delete endorsements endorsement-key)
     
-    ;; Decrement endorsement count
-    (map-set endorsement-counts 
-      target 
-      (- (default-to u0 (map-get? endorsement-counts target)) u1)
+    ;; Safely decrement endorsement count (prevent underflow)
+    (if (> current-count u0)
+        (map-set endorsement-counts 
+          target 
+          (- current-count u1)
+        )
+        true
     )
     
     (ok true)
