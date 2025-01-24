@@ -1,4 +1,4 @@
-;; Web3Identity: Decentralized Identity Management Contract
+;; Web3ID: Decentralized Identity Management Contract
 ;; Define error messages
 (define-constant ERR-PROFILE-EXISTS (err "Profile already exists"))
 (define-constant ERR-PROFILE-NOT-FOUND (err "Profile not found"))
